@@ -97,7 +97,11 @@ for FileItem in AllFiles:
         MedianValues.append(CurrentFluxMedian)
 
     MedianValues = np.array(MedianValues)
+
     sorted_vals = np.sort(MedianValues)[::-1]
+    if len(sorted_vals)<2:
+        print("The list of the sorted values is less than 2. Check why this is the case.")
+        continue
     second_largest_val = sorted_vals[1]
     FirstCounter = np.argmax(MedianValues)
     SecondCounter = np.where(MedianValues == second_largest_val)[0][0]

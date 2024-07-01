@@ -1,0 +1,10 @@
+### Error log for GJ 1214
+2024-06-28 15:46:56,701 - INFO - Script started
+2024-06-28 15:46:56,702 - INFO - speclib version 0.0b1.dev6+g9dc14b6
+2024-06-28 15:46:56,702 - INFO - ultranest version 4.3.1
+2024-06-28 15:46:56,807 - INFO - Loading phoenix spectral grid...
+2024-06-28 15:46:56,991 - WARNING - AstropyDeprecationWarning: The new_flux_unit function is deprecated and may be removed in a future version.
+        Use with_flux_unit instead.
+2024-06-28 15:48:52,256 - ERROR - Error occurred: zero-size array to reduction operation maximum which has no identity
+2024-06-28 15:48:52,267 - INFO - Script ended
+2024-06-28 15:48:52,267 - INFO - Script executed in 115.56 seconds

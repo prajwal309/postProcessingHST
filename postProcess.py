@@ -32,7 +32,9 @@ for FileItem in AllFiles:
     for counter, group in enumerate(data.keys()):
         if counter==0:
             RefFilter = str(data[group]['Filter'][()])
-            
+            RefExpTime = data[group]['Exposure'][()]
+            print("The reference filter is: ", RefFilter)
+            print("The reference exposure time is: ", RefExpTime)
             if 'G102' in RefFilter  :
                 SensitivityCurve= fits.open("sensitivityCurves/WFC3.IR.G102.1st.sens.2.fits")
                 WavelengthSelect = [8200, 11350]
@@ -135,7 +137,7 @@ for FileItem in AllFiles:
     
     assert np.sum(StellarParamsIndex)==1, "The target name is not unique"
 
-    Factor = ((StellarParams['Radius'][StellarParamsIndex].values[0]*SolarRadius)/(StellarParams['Dist'][StellarParamsIndex].values[0]*Parsec))**2
+    Factor = ((StellarParams['Radius'][StellarParamsIndex].values[0]*SolarRadius)/(StellarParams['Dist'][StellarParamsIndex].values[0]*Parsec))**2#*1/RefExpTime
     MedianFlux = MedianFlux*Factor
     FluxSTD = FluxSTD*Factor
    
@@ -149,7 +151,7 @@ for FileItem in AllFiles:
     fig, ax = plt.subplots(figsize=(12,8), nrows=1, ncols=1)
     ax.errorbar(Wavelength[DataSelectIndex], MedianFlux[DataSelectIndex], yerr=FluxSTD[DataSelectIndex], marker='o', linestyle='None', color='k', capsize=2)
     ax.errorbar(Wavelength[~DataSelectIndex], MedianFlux[~DataSelectIndex], yerr=FluxSTD[~DataSelectIndex], marker='o', linestyle='None', color='r', capsize=2)
-    ax.errorbar(Wavelength, MedianFlux/InterpolatedCurve, yerr=FluxSTD, marker='o', linestyle='None', color='b', capsize=2)
+    ax.errorbar(Wavelength[DataSelectIndex], MedianFlux[DataSelectIndex]/InterpolatedCurve[DataSelectIndex], yerr=FluxSTD[DataSelectIndex], marker='o', linestyle='None', color='b', capsize=2)
     ax_twin = ax.twinx()
     ax_twin.plot(WLenSCurve, SCurveVal, "r--")
     ax.set_xlabel("Wavelength")
@@ -159,18 +161,25 @@ for FileItem in AllFiles:
     ax.set_title(Title)
     plt.tight_layout()
     plt.savefig("Figures/"+FileItem.split('/')[-1].replace('.h5', '_2.png'))
-    plt.close()
+    
+    #if "189733" in FileItem:
+    #    plt.show()
+    #else:
+    plt.close('all')
 
     #Define the range of the data to be saved.
     SaveName = "ProcessedData/"+FileItem.split('/')[-1].replace('.h5', '.csv')
 
-    RemoveIndex = np.logical_or(MedianFlux<0, np.isnan(MedianFlux))
+    #Normalize the data
+    MedianFlux = MedianFlux/InterpolatedCurve
 
-    Wavelength = Wavelength[~RemoveIndex]
-    MedianFlux = MedianFlux[~RemoveIndex]
-    FluxSTD = FluxSTD[~RemoveIndex]
+    
+    Wavelength = Wavelength[DataSelectIndex]
+    MedianFlux = MedianFlux[DataSelectIndex]
+    FluxSTD = FluxSTD[DataSelectIndex]
     
 
     #Save the data in the right format
     np.savetxt(SaveName, np.array([Wavelength, MedianFlux, FluxSTD]).T, delimiter=',', header='Wavelength,Flux,FluxErr',comments='')
 
+    
